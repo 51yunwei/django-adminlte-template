@@ -1,0 +1,163 @@
+{% extends 'base.html' %} 
+{% load static %}                                 
+{% block head %}
+<!-- Google Font: Source Sans Pro -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="{% static 'adminlte/plugins/fontawesome-free/css/all.min.css' %}">
+<!-- DataTables -->
+<link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+<link rel="stylesheet" href="{% static 'adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css' %}">
+<!-- Theme style -->
+<link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.min.css' %}">
+{% endblock %}
+    <!-- Main content -->
+    {% block content %}
+    <section class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+            
+               
+  
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">DataTable with default features</h3>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  <table id="usertable" class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                      <th>用户名</th>
+                      <th>创建时间</th>
+                      <th>邮箱</th>
+                      <th>手机号码</th>
+                      <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for user in UserDict %}
+                    <tr>
+                        <td><a href="{{ user.uid }}/">{{ user.username }}</a></td>
+                        <td>{{ user.create_time }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td class="project-actions text-right">
+                            <a class="btn btn-primary btn-sm" href="{{ user.uid }}/">
+                                <i class="fas fa-folder">
+                                </i>
+                                详情
+                            </a>
+                            <a class="btn btn-info btn-sm" href="{{ user.uid }}/edit/">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+                                编辑
+                            </a>
+                            <a class="btn btn-danger btn-sm" data-url="{% url 'manager:userdel' user.uid %}" data-user='{{ user.username }}' data-toggle="modal" data-target="#mymodal">
+                                <i class="fas fa-trash">
+                                </i>
+                                删除
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>用户名</th>
+                        <th>创建时间</th>
+                        <th>邮箱</th>
+                        <th>手机号码</th>
+                        <th>操作</th>
+                    </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+            <!-- /.col -->
+          </div>
+          <!-- /.row -->
+        </div>
+        <!-- /.container-fluid -->
+      </section>
+      <!-- /.content -->
+    <!-- /.content -->
+    {% endblock %}
+  <!-- </div> -->
+  <!-- /.content-wrapper -->
+
+{% block script %}
+<!-- DataTables  & Plugins -->
+<script src="{% static 'adminlte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/jszip/jszip.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/pdfmake/pdfmake.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/pdfmake/vfs_fonts.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-buttons/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-buttons/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js' %}"></script>
+
+<!-- Page specific script -->
+<script>
+  $(function () {
+    $("#usertable").DataTable({
+      "responsive": true, "lengthChange": false, "autoWidth": false,
+      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+      "sDom": "<'row'<'col-md-6'<'#toolbar'>><'col-md-6'f>>",
+    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+    $("#toolbar").append('<a href="{% url "manager:usercreate" %}"><button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i>&nbsp&nbsp新建主机</button></a>')
+  });
+  // document.querySelector('div.toolbar').innerHTML = '<b>Custom tool bar! Text/images etc.</b>';
+
+  // 定义全局url
+  var url
+  $('#mymodal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget) // Button that triggered the modal
+    //注意这里的whatever对应前面html代码中button标签下data-whatever属性的后半段
+    url = button.data('url') // Extract info from data-* attributes
+    var user = button.data('user')
+    // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+    // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+    var modal = $(this)
+    //此处即为修改modal的标题
+    // modal.find('.modal-title').text('New message to ' + recipient)
+    modal.find('.modal-title').text('删除用户')
+    // modal.find('.modal-body input').val(recipient)
+    modal.find('.modal-body p').text("是否确认删除"+user+"用户？")
+    modal.find('.modal-footer a').text("确认删除")
+    modal.find('.modal-footer a').attr("href",url)
+})
+
+$("#mymodelbtn").click(function(e){
+            e.preventDefault(); // 阻止表单的默认提交行为
+            var formData = $( "#editUserForm" ).serialize();
+            $.ajax({
+                url: url, // 你的请求地址
+                type: "GET", // 请求类型，必须是POST
+                data: formData, // 你的表单数据
+                dataType: "json", // 返回的数据类型，必须是json
+                success: function(data){
+                    if (data.result === 0) {
+                        // 请求成功，显示消息
+                        toastr.success('成功：'+data.message)
+                    } else if (data.result === 1) {
+                        toastr.error('失败：'+data.message)
+                    }
+                },
+                error: function(){
+                    // 请求失败的回调函数
+                    console.log("Error");
+                }
+            });
+        });
+</script>
+{% endblock %}

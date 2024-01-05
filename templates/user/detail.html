@@ -1,0 +1,73 @@
+{% extends 'base.html' %} 
+{% load static %}                                 
+{% block head %}
+{% endblock %}
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+          <!-- jquery validation -->
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">用户详细信息</small></h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <div class="col-6">
+              <p class="lead">{{ request.user.username }}</p>
+
+              <div class="table-responsive">
+                <table class="table">
+                  <tbody><tr>
+                    <th style="width:50%">用户名称：</th>
+                    <td>{{ request.user.username }}</td>
+                  </tr>
+                  <tr>
+                    <th>创建时间：</th>
+                    <td>{{ request.user.create_time }}</td>
+                  </tr>
+                  <tr>
+                    <th>最近一次修改时间：</th>
+                    <td>{{ request.user.update_time }}</td>
+                  </tr>
+                  <tr>
+                    <th>邮箱：</th>
+                    <td>{{ request.user.email }}</td>
+                  </tr>
+                  <tr>
+                    <th>手机号码:</th>
+                    <td>{{ request.user.phone }}</td>
+                  </tr>
+                  <tr>
+                    <th>最近一次登录时间:</th>
+                    <td>{{ request.user.last_login }}</td>
+                  </tr>
+                </tbody></table>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <a href="{% url 'manager:useredit' request.user.uid %}" class="btn btn-secondary" style="text-align: left;"><i class="fas fa-edit"></i> 更新信息</a>
+              <a href="{% url 'manager:changepwd' request.user.uid %}" class="btn btn-danger" style="text-align: left;"><i class="fas fa-edit"></i> 更新密码</a>
+              <a href="javascript:history.go(-1);" class="btn btn-success float-right"></i> 返回</a>
+            </div>
+            
+          </div>
+          <!-- /.card -->
+          </div>
+        <!--/.col (left) -->
+        <!-- right column -->
+        <div class="col-md-6">
+
+        </div>
+        <!--/.col (right) -->
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </section>
+{% endblock %}
+{% block script %}
+{% endblock %}

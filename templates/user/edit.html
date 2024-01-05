@@ -1,0 +1,86 @@
+{% extends 'base.html' %} 
+{% load static %}                                 
+{% block head %}
+{% endblock %}
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <!-- left column -->
+        <div class="col-md-12">
+          <!-- jquery validation -->
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">编辑用户信息</h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form id="editUserForm" novalidate="novalidate">
+              <div class="card-body">
+                <div class="form-group">
+                    <label for="username">用户名<a style="color: red;">*</a></label>
+                    <input type="text" name="username" class="form-control" id="username" value="{{ request.user.username }}">
+                  </div>
+                <div class="form-group">
+                  <label for="Email">邮箱地址</label>
+                  <input type="email" name="email" class="form-control" id="Email" value="{{ request.user.email }}">
+                </div>
+                <div class="form-group">
+                    <label for="phone">手机号码</label>
+                    <input type="text" name="phone" class="form-control" id="phone" value="{{ request.user.phone }}">
+                </div>
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer">
+                <button type="submit" class="btn btn-primary">修改&保存</button>
+                <a href="javascript:history.go(-1);" class="btn btn-success float-right"></i> 返回</a>
+              </div>
+            </form>
+          </div>
+          <!-- /.card -->
+          </div>
+        <!--/.col (left) -->
+        <!-- right column -->
+
+        <!--/.col (right) -->
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
+    <div id="message" style="display: none;"></div>
+
+  </section>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+        var Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+        $("#editUserForm button[type='submit']").click(function(e){
+            e.preventDefault(); // 阻止表单的默认提交行为
+            var formData = $( "#editUserForm" ).serialize();
+            $.ajax({
+                url: "{% url 'manager:useredit' request.user.uid %}", // 你的请求地址
+                type: "POST", // 请求类型，必须是POST
+                data: formData, // 你的表单数据
+                dataType: "json", // 返回的数据类型，必须是json
+                success: function(data){
+                    if (data.result === 0) {
+                        // 请求成功，显示消息
+                        toastr.success('成功：'+data.message)
+                    } else if (data.result === 1) {
+                        toastr.error('失败：'+data.message)
+                    }
+                },
+                error: function(){
+                    // 请求失败的回调函数
+                    console.log("Error");
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %} 
+{% load static %}                                 
+{% block head %}
+{% endblock %}
+{% block content %}
+<section class="content">
+  <form id="createUserForm" novalidate="novalidate" onsubmit="return false">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-primary">
+        <div class="card-header">
+          <h3 class="card-title">创建用户</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body" style="display: block;">
+          <div class="form-group">
+            <label for="username">用户名称</label>
+            <input type="text" id="username" name="username" class="form-control"  placeholder="仅允许包含字母和数字">
+          </div>
+          <div class="form-group">
+            <label for="password">密码</label>
+            <input type="password" name="password" class="form-control" id="password" placeholder="必须包含字符串、数字和特殊字符，且长度大于8">
+          </div>
+          <div class="form-group">
+            <label for="confirmpassword">确认密码</label>
+            <input type="password" name="confirmpassword" class="form-control" id="confirmpassword" placeholder="必须包含字符串、数字和特殊字符，且长度大于8">
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+    <div class="col-md-12">
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">更多信息</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body" style="display: block;">
+          <div class="form-group">
+            <label for="Email">邮箱地址</label>
+            <input type="email" name="email" class="form-control" id="Email" placeholder="使用人的邮箱">
+          </div>
+          <div class="form-group">
+              <label for="phone">手机号码</label>
+              <input type="text" name="phone" class="form-control" id="phone" placeholder="使用人的手机号码">
+          </div>
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <a href="javascript:history.go(-1);" class="btn btn-secondary">取消</a>
+      <button type="submit" class="btn btn-success float-right">创建用户</button>
+    </div>
+  </div>
+</form>
+</section>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+        var Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+        $("#createUserForm button[type='submit']").click(function(e){
+            e.preventDefault(); // 阻止表单的默认提交行为
+            var formData = $( "#createUserForm" ).serialize();
+            $.ajax({
+                url: "{% url 'manager:usercreate' %}", // 你的请求地址
+                type: "POST", // 请求类型，必须是POST
+                data: formData, // 你的表单数据
+                dataType: "json", // 返回的数据类型，必须是json
+                success: function(data){
+                    if (data.result === 0) {
+                        // 请求成功，显示消息
+                        toastr.success(data.message)
+                        // window.location.href = "{% url 'manager:userlist' %}";
+                        setTimeout(function() {
+                          window.location.href = "{% url 'manager:userlist' %}";
+                        }, 1000);
+
+                    } else if (data.result === 1) {
+                        toastr.error(data.message)
+                    }
+                },
+                error: function(){
+                    // 请求失败的回调函数
+                    console.log("Error");
+                }
+            });
+        });
+    });
+    </script>
+{% endblock %}
