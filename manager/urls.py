@@ -12,4 +12,5 @@ urlpatterns = [
     path('user/<uuid:uid>/changepwd/',views.ChangePwd.as_view(),name='changepwd'),
     path('user/create/',views.CreateUser.as_view(),name='usercreate'),
     path('user/<uuid:uid>/delete/',views.UserDel,name='userdel'),
+    path('system/',views.SystemManager.as_view(),name='system'),
 ]

@@ -2,12 +2,12 @@ from django.shortcuts import render,redirect
 from django.views import View
 import json
 from django.contrib.auth import authenticate,login,logout
-from manager.models import UserDB
+from manager.models import UserDB,SystemInfoDB
 from django.urls import reverse
 from django.http import JsonResponse,HttpResponse
 from django.contrib.auth.hashers import check_password
 from system.reexpression import reExpression
-
+from system.systeminfo import SystemInfo
 
 # Create your views here.
 class LoginView(View):
@@ -183,5 +183,31 @@ class CreateUser(View):
         except Exception as err:
             print(err)
             resultdict = {'result':1,'message':'添加用户失败，%s' % err}
+        finally:
+            return JsonResponse(resultdict)
+
+
+class SystemManager(View):
+    def get(self,request):
+        return render(request,'system.html',SystemInfo(request))
+    def post(self,request):
+        print(request.POST)
+        system_title = request.POST.get('title','')
+        system_name = request.POST.get('systemname','')
+        try:
+            if not all([system_title,system_name]):
+                raise ValueError('缺少必要的参数')
+            systeminfo = SystemInfoDB.objects.all()
+            if not systeminfo.count():
+                SystemInfoDB.objects.create(system_title=system_title,system_name=system_name)
+            else:
+                systeminfo = systeminfo.first()
+                systeminfo.system_title=system_title
+                systeminfo.system_name=system_name
+                systeminfo.save()
+            resultdict = {'result':0,'message':'修改系统信息成功！'}
+        except Exception as err:
+            print(err)
+            resultdict = {'result':1,'message':'修改系统信息失败，%s' % err}
         finally:
             return JsonResponse(resultdict)
