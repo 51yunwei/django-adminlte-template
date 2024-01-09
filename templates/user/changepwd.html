@@ -2,6 +2,7 @@
 {% load static %}                                 
 {% block head %}
 {% endblock %}
+{% block pageheader %}用户管理{% endblock %}
 {% block content %}
 <section class="content">
     <div class="container-fluid">
@@ -32,7 +33,7 @@
               </div>
               <!-- /.card-body -->
               <div class="card-footer">
-                <button type="submit" class="btn btn-primary">修改&保存</button>
+                <button type="submit" class="btn btn-primary" id="savebtn">修改&保存</button>
                 <a href="javascript:history.go(-1);" class="btn btn-success float-right"></i> 返回</a>
               </div>
             </form>
@@ -61,6 +62,11 @@
         });
         $("#ChangepwdForm button[type='submit']").click(function(e){
             e.preventDefault(); // 阻止表单的默认提交行为
+            // 先进行表单验证
+            if (!$("#ChangepwdForm").valid()) {
+                // 如果验证失败，返回false，不提交数据
+                return false;
+            };
             var formData = $( "#ChangepwdForm" ).serialize();
             $.ajax({
                 url: "{% url 'manager:changepwd' request.user.uid %}", // 你的请求地址
@@ -80,6 +86,64 @@
                     console.log("Error");
                 }
             });
+        });
+        // 表单验证
+        // $("#savebtn").prop('disabled', true);
+        $.validator.addMethod("letterswithnumber", function(value,element) {
+        return this.optional(element) || /^(?=.*[a-z])(?=.*[0-9]).*$/i.test(value);
+    }, "密码中必须包含字母、数字和特殊字符");
+
+    $.validator.addMethod("specialchar", function(value,element) {
+        return this.optional(element) || /^(?=.*[!@#\$%\^&\*\(\)\-_=+{}:\,\<\>\?]).*$/i.test(value);
+    }, "密码中必须包含字母、数字和特殊字符");
+    $('#ChangepwdForm').validate({
+          rules: {
+            currpassword: {
+              required: true,
+            },
+            newpassword: {
+              required: true,
+              letterswithnumber: true,
+              specialchar: true,
+              minlength: 8
+            },
+            confirmpassword: {
+              required: true,
+              equalTo: "#newpassword"
+            },
+            
+          },
+          messages: {
+            currpassword: {
+              required: "当前密码不能为空",
+            },
+            newpassword: {
+              required: "请提供密码",
+              etterswithnumber: "密码中必须包含字母和数字",
+              specialchar: "密码中必须包含特殊字符",
+              minlength: "密码至少 8 个字符，至少包含三种符号"
+            },
+            confirmpassword: {
+              required: "请提供确认密码",
+              equalTo: "确认密码与密码不一致"
+            },
+          },
+          errorElement: 'span',
+          errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+           
+          },
+          highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+           
+          },
+          unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+           
+
+          },
+          
         });
     });
     </script>

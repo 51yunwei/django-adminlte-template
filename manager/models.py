@@ -15,3 +15,11 @@ class UserDB(AbstractUser):
         verbose_name_plural = verbose_name
     def __str__(self):
         return self.username
+class SystemInfoDB(models.Model):
+    system_title = models.CharField(max_length=128,verbose_name="网页title")
+    system_name = models.CharField(max_length=128,verbose_name="站点名称")
+    class Meta:
+        verbose_name = '系统信息'
+        verbose_name_plural = verbose_name
+    def __str__(self):
+        return self.system_name

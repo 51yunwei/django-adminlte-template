@@ -2,6 +2,7 @@
 {% load static %}                                 
 {% block head %}
 {% endblock %}
+{% block pageheader %}用户管理{% endblock %}
 {% block content %}
 <section class="content">
   <form id="createUserForm" novalidate="novalidate" onsubmit="return false">
@@ -81,6 +82,10 @@
         });
         $("#createUserForm button[type='submit']").click(function(e){
             e.preventDefault(); // 阻止表单的默认提交行为
+            if (!$("#createUserForm").valid()) {
+                // 如果验证失败，返回false，不提交数据
+                return false;
+            };
             var formData = $( "#createUserForm" ).serialize();
             $.ajax({
                 url: "{% url 'manager:usercreate' %}", // 你的请求地址
@@ -107,5 +112,69 @@
             });
         });
     });
+    // <!-- 表单校验 -->
+    $.validator.addMethod("letterswithnumber", function(value,element) {
+        return this.optional(element) || /^(?=.*[a-z])(?=.*[0-9]).*$/i.test(value);
+    }, "密码中必须包含字母、数字和特殊字符");
+
+    $.validator.addMethod("specialchar", function(value,element) {
+        return this.optional(element) || /^(?=.*[!@#\$%\^&\*\(\)\-_=+{}:\,\<\>\?]).*$/i.test(value);
+    }, "密码中必须包含字母、数字和特殊字符");
+    $('#createUserForm').validate({
+          rules: {
+            email: {
+              required: false,
+              email: true,
+            },
+            password: {
+              required: true,
+              letterswithnumber: true,
+              specialchar: true,
+              minlength: 8
+            },
+            confirmpassword: {
+              required: true,
+              equalTo: "#password"
+            },
+            username: {
+              required: true,
+              pattern: /^[a-zA-Z]+[0-9]*$/,
+              minlength: 5
+            },
+          },
+          messages: {
+            email: {
+              email: "请输入正确的邮箱"
+            },
+            password: {
+              required: "请提供密码",
+              etterswithnumber: "密码中必须包含字母和数字",
+              specialchar: "密码中必须包含特殊字符",
+              minlength: "密码至少 8 个字符，至少包含三种符号"
+            },
+            username: {
+              required: "请输入用户名",
+              minlength: "用户名至少 5 个字符，仅允许字母和数字，且以字母开头",
+              pattern: "用户名至少 5 个字符，仅允许字母和数字，且以字母开头"
+            },
+            confirmpassword: {
+              required: "请提供确认密码",
+              equalTo: "确认密码与密码不一致"
+            },
+          },
+          errorElement: 'span',
+          errorPlacement: function (error, element) {
+            error.addClass('invalid-feedback');
+            element.closest('.form-group').append(error);
+          },
+          highlight: function (element, errorClass, validClass) {
+            $(element).addClass('is-invalid');
+          },
+          unhighlight: function (element, errorClass, validClass) {
+            $(element).removeClass('is-invalid');
+          }
+        });
     </script>
+   
+    
 {% endblock %}

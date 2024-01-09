@@ -12,6 +12,7 @@
 <!-- Theme style -->
 <link rel="stylesheet" href="{% static 'adminlte/dist/css/adminlte.min.css' %}">
 {% endblock %}
+{% block pageheader %}用户管理{% endblock %}
     <!-- Main content -->
     {% block content %}
     <section class="content">
@@ -23,7 +24,7 @@
   
               <div class="card">
                 <div class="card-header">
-                  <h3 class="card-title">DataTable with default features</h3>
+                  <h3 class="card-title">用户列表</h3>
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
@@ -37,42 +38,7 @@
                       <th>操作</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {% for user in UserDict %}
-                    <tr>
-                        <td><a href="{{ user.uid }}/">{{ user.username }}</a></td>
-                        <td>{{ user.create_time }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.phone }}</td>
-                        <td class="project-actions text-right">
-                            <a class="btn btn-primary btn-sm" href="{{ user.uid }}/">
-                                <i class="fas fa-folder">
-                                </i>
-                                详情
-                            </a>
-                            <a class="btn btn-info btn-sm" href="{{ user.uid }}/edit/">
-                                <i class="fas fa-pencil-alt">
-                                </i>
-                                编辑
-                            </a>
-                            <a class="btn btn-danger btn-sm" data-url="{% url 'manager:userdel' user.uid %}" data-user='{{ user.username }}' data-toggle="modal" data-target="#mymodal">
-                                <i class="fas fa-trash">
-                                </i>
-                                删除
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                    <tfoot>
-                    <tr>
-                        <th>用户名</th>
-                        <th>创建时间</th>
-                        <th>邮箱</th>
-                        <th>手机号码</th>
-                        <th>操作</th>
-                    </tr>
-                    </tfoot>
+                    
                   </table>
                 </div>
                 <!-- /.card-body -->
@@ -109,15 +75,67 @@
 <!-- Page specific script -->
 <script>
   $(function () {
-    $("#usertable").DataTable({
-      "responsive": true, "lengthChange": false, "autoWidth": false,
-      "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-      "sDom": "<'row'<'col-md-6'<'#toolbar'>><'col-md-6'f>>",
-    }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-    $("#toolbar").append('<a href="{% url "manager:usercreate" %}"><button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i>&nbsp&nbsp新建主机</button></a>')
-  });
-  // document.querySelector('div.toolbar').innerHTML = '<b>Custom tool bar! Text/images etc.</b>';
+    $('#usertable').DataTable({
+                "ajax": "{% url 'manager:userlist' %}",
+                "columns": [
+                    {"data": "username"},
+                    {"data": "create_time"},
+                    {"data": "email"},
+                    {"data": "phone"},
+                    {"data": "button"},
+                ],
+                language: {//自定义语言提示
+                    "processing": "处理中...",
+                    "lengthMenu": "显示 _MENU_ 条用户数据",
+                    "zeroRecords": "没有找到相应的结果",
+                    "info": "第 _START_ 至 _END_ 行，共 _TOTAL_ 行",
+                    "infoEmpty": "第 0 至 0 项结果，共 0 项",
+                    "infoFiltered": "(由 _MAX_ 项结果过滤)",
+                    "infoPostFix": "",
+                    "url": "",
+                    "thousands": "'",
+                    "emptyTable": "表中数据为空",
+                    "loadingRecords": "载入中...",
+                    "infoThousands": ",",
+                    "paginate": {
+                        "first": "首页",
+                        "previous": "上页",
+                        "next": "下页",
+                        "last": "末页"
+                    }
+                },
+                // "stateSave": true,
+                // "bAutoWidth": true,
+                // "scrollX": "true",
+                // "scrollY": "600px",
+                // "scrollCollapse": true,
+                "sDom": "<'row'<'col-md-6'<'#toolbar'>><'col-md-6'f>>" +  //设置表格最上面内容，可以在这里添加按钮等其他设置
+        "t" + //设置tables
+        "<'row'<'col-md-5 sm-center'li><'col-md-7 text-right sm-center'p>>",//设置表格最下面显示内容
+                buttons: [{
+                    text: '<i class="fa fa-download" title="导出execl"></i>',
+                    extend: 'excel', // 导出为execl
+                    title: '用户列表'+Date.now(), // 导出文件的名字
+                    className: 'btn btn-primary', // 按钮样式
+                    exportOptions:{
+                        columns:[1,2,3,4], // 导出哪些列
+                        // rows:[1,2,3,4] //导出哪些行
+                        modifier: {
+                            page: 'all', // 导出哪些页的数据，all为所有，current为当前页
+                        },
+                        Headers: true,// 导出表格表头
+                        footer: true,// 导出表格表尾
+                        extension: ".xlsx", // 导出的文件后缀
+                    }
+                }]
+          });
+          $("#toolbar").append('<a href="{% url "manager:usercreate" %}"><button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i>&nbsp&nbsp新建用户</button></a>')
 
+      
+
+  });
+  
+          
   // 定义全局url
   var url
   $('#mymodal').on('show.bs.modal', function (event) {

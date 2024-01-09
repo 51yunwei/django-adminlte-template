@@ -4,7 +4,7 @@ import json
 from django.contrib.auth import authenticate,login,logout
 from manager.models import UserDB
 from django.urls import reverse
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
 from django.contrib.auth.hashers import check_password
 from system.reexpression import reExpression
 
@@ -33,21 +33,48 @@ class LoginView(View):
 def IndexView(request):
     return render(request,'base.html')
 
+def UserIndex(request):
+    return render(request,'user/index.html')
 class UserManager(View):
     def get(self,request):
+        # if not  request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        #     return render(request,'user/index.html')
+        # print('not ajax request')
         UserInfo = UserDB.objects.all()
         # print(user)
         UserList = []
         for User in UserInfo:
             username = User.username
-            create_time = User.create_time
+            create_time =User.create_time
             email = User.email
             phone = User.phone
-            UserList.append({'username': User.username,'create_time':User.create_time,'email':User.email,'phone': User.phone,'uid':User.uid})
+            button = """<div style="display: block;text-align: center;margin: auto;">
+            <a class="btn btn-primary btn-sm" href="{0}">
+                                <i class="fas fa-folder">
+                                </i>
+                                详情
+                            </a>
+                            <a class="btn btn-info btn-sm" href="{1}">
+                                <i class="fas fa-pencil-alt">
+                                </i>
+                                编辑
+                            </a>
+                            <a class="btn btn-danger btn-sm" data-url="{2}" data-user='{3}' data-toggle="modal" data-target="#mymodal">
+                                <i class="fas fa-trash">
+                                </i>
+                                删除
+                            </a>
+            </div>
+            """.format(reverse('manager:userdetail',kwargs={'uid':User.uid}),reverse('manager:useredit',kwargs={'uid':User.uid}),reverse('manager:userdel',kwargs={'uid':User.uid}),User.username)
+            UserList.append({'username': User.username,'create_time':User.create_time.strftime('%Y-%m-%d %H:%M:%S'),'email':User.email,'phone': User.phone,'uid':str(User.uid),'button':button})
             print(username)
-        # UserInfo = user
-        print(UserInfo)
-        return render(request,'user/index.html',{'UserDict':UserList}) # template循环的时候使用key名称
+
+        UserDict = {}
+        UserDict["data"] = UserList
+  
+        return HttpResponse(json.dumps(UserDict))
+
+        # return render(request,'user/index.html',{'UserDict':UserList}) # template循环的时候使用key名称
     def post(self,request):
         return None
 
