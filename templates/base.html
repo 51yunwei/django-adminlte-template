@@ -43,7 +43,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
           <i class="fas fa-expand-arrows-alt"></i>
         </a>
       </li>
-
       <!-- 用户按钮 -->
       <li class="nav-item dropdown">
         <a class="nav-link" data-toggle="dropdown" href="#">
@@ -60,14 +59,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <i class="fas fa-edit"></i> 修改密码
           </a>
           <div class="dropdown-divider"></div>
-          <a href="{% url 'manager:logout' %}" class="dropdown-item" style="text-align: center;" data-toggle="modal" data-target="#mymodal">
+          <a href="#" class="dropdown-item" style="text-align: center;" data-toggle="modal" data-target="#mymodal">
             <i class="fas fa-sign-out-alt"></i> 退出登录
           </a>
         </div>
       </li>
       <!-- 新增退出按钮 -->
       <li class="nav-item">
-        <a class="nav-link"  href="/logout/" role="button" id="logoutbtn" data-toggle="modal" data-target="#mymodal">
+        <a class="nav-link" href="#" role="button" id="logoutbtn" data-toggle="modal" data-target="#mymodal">
           <!-- admin -->
           <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
           
@@ -175,7 +174,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-        <a id="mymodelbtn" style="color: white;" role="button" class="btn btn-primary" data-dismiss="modal"></a>
+        <a id="mymodelbtn" style="color: white;" role="button" class="btn btn-primary" ></a>
       </div>
     </div>
     <!-- /.modal-content -->

@@ -75,6 +75,7 @@
 <!-- Page specific script -->
 <script>
   $(function () {
+    
     $('#usertable').DataTable({
                 "ajax": "{% url 'manager:userlist' %}",
                 "columns": [
@@ -130,6 +131,7 @@
                 }]
           });
           $("#toolbar").append('<a href="{% url "manager:usercreate" %}"><button type="button" class="btn btn-primary"><i class="fa fa-plus-square"></i>&nbsp&nbsp新建用户</button></a>')
+          $('#mymodelbtn').attr('data-dismiss', 'modal');
 
       
 
@@ -157,16 +159,18 @@
 
 $("#mymodelbtn").click(function(e){
             e.preventDefault(); // 阻止表单的默认提交行为
-            var formData = $( "#editUserForm" ).serialize();
             $.ajax({
                 url: url, // 你的请求地址
                 type: "GET", // 请求类型，必须是POST
-                data: formData, // 你的表单数据
                 dataType: "json", // 返回的数据类型，必须是json
                 success: function(data){
                     if (data.result === 0) {
                         // 请求成功，显示消息
                         toastr.success('成功：'+data.message)
+                        setTimeout(function() {
+                          $('#usertable').DataTable().ajax.reload();
+
+                        }, 1000);
                     } else if (data.result === 1) {
                         toastr.error('失败：'+data.message)
                     }

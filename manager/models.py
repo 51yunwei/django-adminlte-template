@@ -23,3 +23,37 @@ class SystemInfoDB(models.Model):
         verbose_name_plural = verbose_name
     def __str__(self):
         return self.system_name
+
+class SystemLogDB(models.Model):
+    """系统日志表"""
+
+    id = models.AutoField(primary_key=True)
+    re_time = models.CharField(max_length=32, verbose_name='请求时间')
+    re_user = models.CharField(max_length=32, verbose_name='操作人')
+    re_ip = models.CharField(max_length=32, verbose_name='请求IP')
+    re_url = models.CharField(max_length=255, verbose_name='请求url')
+    re_method = models.CharField(max_length=11, verbose_name='请求方法')
+    re_content = models.TextField(null=True, verbose_name='请求参数')
+    rp_content = models.TextField(null=True, verbose_name='响应参数')
+    access_time = models.IntegerField(verbose_name='响应耗时/ms')
+
+    class Meta:
+        verbose_name = '系统日志'
+        verbose_name_plural = verbose_name
+class OperateLogDB(models.Model):
+    """操作日志表"""
+    Op_result_choices = (
+        (0, '成功'),
+        (1, '失败'),
+    )
+    uid = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    create_time = models.DateTimeField('操作时间',auto_now_add=True)
+    op_user = models.CharField(max_length=32, verbose_name='操作人')
+    remote_ip = models.CharField(max_length=32, verbose_name='操作IP')
+    op_type = models.CharField(max_length=255,verbose_name='操作结果',choices=Op_result_choices)
+    result = models.CharField(max_length=11, verbose_name='操作结果')
+    op_message = models.TextField(null=True, verbose_name='操作信息')
+    
+    class Meta:
+        verbose_name = '操作日志'
+        verbose_name_plural = verbose_name

@@ -8,7 +8,7 @@ from django.http import JsonResponse,HttpResponse
 from django.contrib.auth.hashers import check_password
 from system.reexpression import reExpression
 from system.systeminfo import SystemInfo
-
+from system.operatelog import OperateLog
 # Create your views here.
 class LoginView(View):
     def get(self,request):
@@ -22,12 +22,15 @@ class LoginView(View):
         password = request.POST.get('password','')
         # print('post next====',request.POST.get('next',''),request.POST)
         user = authenticate(username=username,password=password)
+        
         if user:
             login(request,user)
             request.session["username"] = username
             request.session.set_expiry(0)  # 关闭浏览器就过期
+            OperateLog(request=request,op_type='登录',op_message="登录成功")
             return redirect(next_path)
         login_error_message = '用户名或密码错误'
+        OperateLog(request=request,result=1,op_type='登录',op_message=login_error_message)
         print('登录失败')
         return render(request,'login.html',{'login_error_message':login_error_message})
 def IndexView(request):
@@ -71,7 +74,7 @@ class UserManager(View):
 
         UserDict = {}
         UserDict["data"] = UserList
-  
+        OperateLog(request=request,op_type='查询',op_message="查询用户列表")
         return HttpResponse(json.dumps(UserDict))
 
         # return render(request,'user/index.html',{'UserDict':UserList}) # template循环的时候使用key名称
@@ -81,29 +84,38 @@ class UserManager(View):
 def UserDetail(request,uid):
     UserInfo = UserDB.objects.filter(uid=uid)
     if not UserInfo.count():
+        OperateLog(request=request,op_type='查询',result=1,op_message="查询的用户不存在")
         return redirect(reverse('manager:userlist'))
     UserInfo = UserInfo.first()
+    OperateLog(request=request,op_type='查询',result=1,op_message="查询用户%s详细信息" % UserInfo.username)
     return render(request,'user/detail.html')
 
 def LogOut(request):
     if request.user:
+        OperateLog(request=request,op_type='登出',op_message="用户%s退出登录" % request.user)
         logout(request)
+        
     return redirect('/login/')
 
 def UserDel(request,uid):
     try:
         op_user = request.user
         if not request.user.is_superuser:
+            OperateLog(request=request,op_type='删除用户',result=1,op_message="删除用户失败，操作用户无权限。")
             raise ValueError('无权限操作！')
 
         if op_user.uid == uid:
+            OperateLog(request=request,op_type='删除用户',result=1,op_message="删除用户失败，操作用户无权限。")
             raise ValueError('不能删除当前账号！')
         UserDB.objects.get(uid=uid).delete()
         resultdict =  {'result':0,'message':'删除用户成功'}   
+        OperateLog(request=request,op_type='删除用户',op_message="删除用户%s成功" % UserDB.objects.get(uid=uid).username)
     except Exception as err:
+        OperateLog(request=request,op_type='删除用户',result=1,op_message="删除用户%s失败，%s" % (UserDB.objects.get(uid=uid).username, err))
         resultdict =  {'result':1,'message':'删除用户失败，%s' % err} 
     finally:
         return JsonResponse(resultdict)
+        
 class UserEdit(View):
     def get(self,request,uid):
         UserInfo = UserDB.objects.filter(uid=uid)
@@ -115,7 +127,8 @@ class UserEdit(View):
     def post(self,request,uid):
         op_user = request.user
         if not op_user.is_superuser or op_user.uid != uid: # 如果不是管理员或者修改的不是自己的用户信息
-            resultdict = {'result':1,'message':'无权限修改其他用户的信息'}
+            OperateLog(request=request,op_type='编辑用户',result=1,op_message="修改用户%s信息失败，操作用户无权限。" % uid)
+            raise ValueError('无权限修改其他用户的信息')
         try:
             if not request.POST.get('username'):
                 raise ValueError('缺少必填参数用户名')
@@ -125,8 +138,10 @@ class UserEdit(View):
             user.username = request.POST.get('username','')
             user.save()
             resultdict = {'result':0,'message':'修改成功'}     
+            OperateLog(request=request,op_type='编辑用户',op_message="修改用户%s信息成功。" % user.username)
         except Exception as err :
             resultdict = {'result':1,'message':'修改用户信息失败%s' % err}
+            OperateLog(request=request,op_type='编辑用户',result=1,op_message="修改用户%s信息失败,%s。" % (uid,err))
         finally:
             return JsonResponse(resultdict)
 class ChangePwd(View):
@@ -135,6 +150,7 @@ class ChangePwd(View):
     def post(self,request,uid):
         op_user = request.user
         if not op_user.is_superuser or op_user.uid != uid: # 如果不是管理员或者修改的不是自己的用户信息
+
             raise ValueError('无权限修改其他用户的信息')
         try:
             user = UserDB.objects.get(uid=uid)
@@ -145,8 +161,10 @@ class ChangePwd(View):
             user.set_password(request.POST.get("confirmpassword"))
             user.save()
             resultdict = {'result':0,'message':'修改密码成功'}
+            OperateLog(request=request,op_type='编辑用户',op_message="修改用户%s信息成功。" % user.username)
         except Exception as err:
             resultdict = {'result':1,'message':'修改用户信息失败，%s' % err}
+            OperateLog(request=request,op_type='编辑用户',result=1,op_message="修改用户%s密码失败,%s。" % (uid,err))
         finally:
             return JsonResponse(resultdict)
 class CreateUser(View):
@@ -178,11 +196,12 @@ class CreateUser(View):
                     raise ValueError('手机号码参数不符合要求')
             print('校验通过')
             UserDB.objects.create(username=username,password=password,email=email,phone=phone)
-            
+            OperateLog(request=request,op_type='创建用户',op_message="创建用户%s信息成功。" % username)
             resultdict = {'result':0,'message':'添加用户成功'}
         except Exception as err:
             print(err)
             resultdict = {'result':1,'message':'添加用户失败，%s' % err}
+            OperateLog(request=request,op_type='创建用户',result=1,op_message="创建用户失败,%s。" % (err))
         finally:
             return JsonResponse(resultdict)
 
@@ -206,8 +225,10 @@ class SystemManager(View):
                 systeminfo.system_name=system_name
                 systeminfo.save()
             resultdict = {'result':0,'message':'修改系统信息成功！'}
+            OperateLog(request=request,op_type='创建用户',op_message="修改系统信息成功！%s,%s。" % (system_title,system_name))
         except Exception as err:
             print(err)
             resultdict = {'result':1,'message':'修改系统信息失败，%s' % err}
+            OperateLog(request=request,op_type='创建用户',result=1,op_message='修改系统信息失败，%s' % err)
         finally:
             return JsonResponse(resultdict)

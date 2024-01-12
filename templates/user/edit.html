@@ -78,6 +78,9 @@
                     if (data.result === 0) {
                         // 请求成功，显示消息
                         toastr.success('成功：'+data.message)
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
                     } else if (data.result === 1) {
                         toastr.error('失败：'+data.message)
                     }
