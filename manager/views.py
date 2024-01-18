@@ -39,7 +39,7 @@ class LoginView(View):
         OperateLog.failedlog(request=request,op_type='登录',op_message='%s用户登录失败' %(username))
         return render(request,'login.html',{'login_error_message':login_error_message})
 def IndexView(request):
-    return render(request,'base.html')
+    return render(request,'main.html')
 
 
 # 用户列表View
