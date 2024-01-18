@@ -9,6 +9,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ systeminfo.system_title }}</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'image/logo.png' %}" />
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -59,14 +60,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <i class="fas fa-edit"></i> 修改密码
           </a>
           <div class="dropdown-divider"></div>
-          <a href="#" class="dropdown-item" style="text-align: center;" data-toggle="modal" data-target="#mymodal">
+          <a href="#" class="dropdown-item" style="text-align: center;" data-toggle="modal" data-target="#logoutmodal">
             <i class="fas fa-sign-out-alt"></i> 退出登录
           </a>
         </div>
       </li>
       <!-- 新增退出按钮 -->
       <li class="nav-item">
-        <a class="nav-link" href="#" role="button" id="logoutbtn" data-toggle="modal" data-target="#mymodal">
+        <a class="nav-link" href="#" role="button" id="logoutbtn" data-toggle="modal" data-target="#logoutmodal">
           <!-- admin -->
           <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
           
@@ -80,7 +81,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="/" class="brand-link">
-      <img src="{% static 'adminlte/dist/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+      <!-- <img src="{% static 'adminlte/dist/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8"> -->
+      
+      <img src="{% static 'image/logo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">{{ systeminfo.system_name }}</span>
     </a>
 
@@ -91,7 +94,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
-            <a href="{% url 'manager:userindex' %}" class="nav-link">
+            <a href="{% url 'manager:userlist' %}" class="nav-link">
               <i class="nav-icon fas fa-user"></i>
               <p>用户管理</p>
             </a>
@@ -102,6 +105,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
               <p>系统设置</p>
             </a>
           </li>
+          <!-- 日志 -->
+          <li class="nav-item" id="logmanagerli">
+            <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-book"></i>
+            <p>
+            日志管理
+            <i class="fas fa-angle-left right"></i>
+            </p>
+            </a>
+            <ul class="nav nav-treeview" id='logmanagertree' style="display: none;">
+              <li class="nav-item">
+                <a href="{% url 'manager:systemlog' %}" class="nav-link">
+                <i class="nav-icon far fa-circle text-info"></i>
+                <p>系统日志</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'manager:operatelog' %}" class="nav-link">
+                <i class="nav-icon far fa-circle text-warning"></i>
+                <p>操作日志</p>
+              </a>
+              </li>
+            </ul>
+          </li>
+          <!-- 日志结束 -->
         </ul>
         
       </nav>
@@ -159,8 +187,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
   </footer>
 </div>
 <!-- ./wrapper -->
-<!-- 模态框 -->
+<!-- 通用模态框 -->
 <div class="modal fade" id="mymodal" style="display: none;" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="mymodaltitle"></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="mymodalcontent"></p>
+      </div>
+      <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <a id="mymodelbtn" style="color: white;" role="button" class="btn btn-primary" ></a>
+      </div>
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- 模态框结束 -->
+<!-- 退出登录模态框 -->
+<div class="modal fade" id="logoutmodal" style="display: none;" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -218,7 +269,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     
     
   });
-  $('#mymodal').on('show.bs.modal', function (event) {
+  $('#logoutmodal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget) // Button that triggered the modal
     //注意这里的whatever对应前面html代码中button标签下data-whatever属性的后半段
     // var recipient = button.data('whatever') // Extract info from data-* attributes
@@ -232,6 +283,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     modal.find('.modal-body p').text("是否确认退出登录？")
     modal.find('.modal-footer a').text("确认退出")
     modal.find('.modal-footer a').attr("href","{% url 'manager:logout' %}")
+    
+    
 })
 </script>
 {% block script %}{% endblock %}

@@ -5,57 +5,170 @@
 {% block pageheader %}用户管理{% endblock %}
 {% block content %}
 <section class="content">
+  <form id="editUserForm" novalidate="novalidate">
     <div class="container-fluid">
       <div class="row">
-        <!-- left column -->
         <div class="col-md-12">
-          <!-- jquery validation -->
           <div class="card card-primary">
             <div class="card-header">
               <h3 class="card-title">编辑用户信息</h3>
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
             </div>
             <!-- /.card-header -->
             <!-- form start -->
-            <form id="editUserForm" novalidate="novalidate">
+          
               <div class="card-body">
                 <div class="form-group">
-                    <label for="username"><a style="color: red;">*</a>用户名</label>
-                    <input type="text" name="username" class="form-control" id="username" value="{{ request.user.username }}">
+                  <label for="username"><a style="color: red;">*</a>用户名</label>
+                  <input type="text" name="username" class="form-control" id="username" value="{{ user.username }}">
+                </div>
+                <div class="form-group">
+                  <label for="superuser" class="col-sm-1"><a style="color: red;">*</a>是否为管理员</label>
+                  
+                    {% if user.is_superuser %}
+                    <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-on" style="width: 86px;">
+                      <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;">
+                        {% if request.user.is_superuser %}
+                        <input type="checkbox" name="superuser_value"  checked="" id="superuser_value" data-bootstrap-switch="">
+                        {% else %}
+                        <input type="checkbox" name="superuser_value"  checked="" id="superuser_value" data-bootstrap-switch="" disabled>
+                        {% endif %}
+                      </div>
+                      <input type="hidden" name="superuser" value="True">
+                    {% else %}
+                    <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-on" style="width: 86px;">
+                      <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;">
+                        {% if request.user.is_superuser %}
+                        <input type="checkbox" name="superuser_value"  id="superuser_value" data-bootstrap-switch="">
+                        {% else %}
+                        <input type="checkbox" name="superuser_value"  id="superuser_value" data-bootstrap-switch="" disabled>
+                        {% endif %}
+                      </div>
+                      <input type="hidden" name="superuser" value="False">
+                    {% endif %}
                   </div>
+                
                 <div class="form-group">
-                  <label for="Email">邮箱地址</label>
-                  <input type="email" name="email" class="form-control" id="Email" value="{{ request.user.email }}">
+                  
+                    <label for="superuser" class="col-sm-1"><a style="color: red;">*</a>启用用户</label>
+                    <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-on" style="width: 86px;">
+                      <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;">
+                      {% if user.is_active %}
+                        {% if request.user.is_superuser %}
+                          <input type="checkbox" name="userstat_value" id="userstat_value"  checked="" data-bootstrap-switch="">
+                        {% else %}
+                          <input type="checkbox" name="userstat_value" id="userstat_value"  checked="" data-bootstrap-switch="" disabled>
+                        {% endif %}
+                        </div>
+                        <input type="hidden" name="userstat" value="True">
+                      {% else %}
+                        {% if request.user.is_superuser %}
+                          <input type="checkbox" name="userstat_value"  id="userstat_value" data-bootstrap-switch="">
+                        {% else %}
+                        <input type="checkbox" name="userstat_value"  id="userstat_value" data-bootstrap-switch="" disabled>
+                        {% endif %}
+                        </div>
+                        <input type="hidden" name="userstat" value="False">
+                    {% endif %}
+                  </div>
                 </div>
-                <div class="form-group">
-                    <label for="phone">手机号码</label>
-                    <input type="text" name="phone" class="form-control" id="phone" value="{{ request.user.phone }}">
+              </div>
+        </div>
+              </div>
+              </div>
+              <div class="col-md-12">
+                <div class="card card-secondary collapsed-card">
+                  <div class="card-header">
+                    <h3 class="card-title">更多信息</h3>
+          
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body" style="display: none;">
+                    <div class="form-group">
+                      <label for="Email">邮箱地址</label>
+                      <input type="email" name="email" class="form-control" id="Email" placeholder="使用人的邮箱" value="{{ user.email }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机号码</label>
+                        <input type="text" name="phone" class="form-control" id="phone" placeholder="使用人的手机号码" value="{{ user.phone }}">
+                    </div>
+                    <div class="row form-group" style=" align-items: center;">
+                      <div class="col-1">
+                        <label for="passwd_expireday">密码过期天数</label>
+                      </div>
+                      <div class="col-1">
+                        {% if request.user.is_superuser %}
+                        <input type="number" id="passwd_expireday" class="form-control" min="0" max="999" name="passwd_expireday" value="{{ passwd_expireday }}">
+                        {% else %}
+                        <input type="number" id="passwd_expireday" class="form-control" min="0" max="999" name="passwd_expireday" value="{{ passwd_expireday }}" disabled>
+                        {% endif %}
+                      </div>
+                      <div class="col-2">
+                        <a>0~999，0为不过期</a>
+                      </div>
+                    </div>
+                    
+                    <!-- IP限制 -->
+                    <div class="row form-group" style=" align-items: center;">
+                      <div class="col-1">
+                        <label class="col-sm-0">限制IP类型</label>
+                      </div>
+                      <div class="col-1">
+                        <select class="form-control">
+                          <option>不限制</option>
+                          <option>白名单</option>
+                          <option>黑名单</option>
+                        </select>
+                      </div>
+                      
+                    </div>
+                    
+                    <div id="ipdiv">
+                      
+                        
+                    
+                    </div>
+                    <!-- IP限制 -->
+                  </div>
+                  <!-- /.card-body -->
                 </div>
+                <!-- /.card -->
+              </div>
               </div>
               <!-- /.card-body -->
               <div class="card-footer">
-                <a href="{% url 'manager:changepwd' request.user.uid %}" class="btn btn-danger" style="text-align: left;"><i class="fas fa-edit"></i> 更新密码</a>
+                <a href="{% url 'manager:changepwd' user.uid %}" class="btn btn-danger" style="text-align: left;"><i class="fas fa-edit"></i> 更新密码</a>
                 <a href="javascript:history.go(-1);" class="btn btn-success float-right"></i> 返回</a>
                 <button type="submit" class="btn btn-primary float-right" style="margin-right:5px;">修改&保存</button>
-                
               </div>
-            </form>
-          </div>
-          <!-- /.card -->
-          </div>
+           
+      
+      </div>
+        <!-- /.card -->
+    </div>
         <!--/.col (left) -->
         <!-- right column -->
-
-        <!--/.col (right) -->
-      </div>
-      <!-- /.row -->
-    </div><!-- /.container-fluid -->
+    </form>
     <div id="message" style="display: none;"></div>
 
   </section>
 {% endblock %}
 {% block script %}
+<script src="{% static 'adminlte/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}"></script>
 <script>
     $(document).ready(function(){
+      
+        $("input[data-bootstrap-switch]").each(function(){
+          $(this).bootstrapSwitch('state', $(this).prop('checked'));
+        })
         var Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -70,7 +183,7 @@
             };
             var formData = $( "#editUserForm" ).serialize();
             $.ajax({
-                url: "{% url 'manager:useredit' request.user.uid %}", // 你的请求地址
+                url: "{% url 'manager:useredit' user.uid %}", // 你的请求地址
                 type: "POST", // 请求类型，必须是POST
                 data: formData, // 你的表单数据
                 dataType: "json", // 返回的数据类型，必须是json
@@ -129,5 +242,16 @@
           }
         });
     });
+     // bootstrap switch事件监听
+     $("#userstat_value").on('switchChange.bootstrapSwitch', function (event,state) {  
+
+        var status = this.checked ? 'True' : 'False';
+
+          $('input[name="userstat"]').val(status);
+        });
+      $('#superuser_value').on('switchChange.bootstrapSwitch', function (event,state) {  
+        var status = this.checked ? 'True' : 'False';
+        $('input[name="superuser"]').val(status);
+      });
     </script>
 {% endblock %}

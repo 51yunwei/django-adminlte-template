@@ -31,23 +31,43 @@
             <label for="confirmpassword"><a style="color: red;">*</a>确认密码</label>
             <input type="password" name="confirmpassword" class="form-control" id="confirmpassword" placeholder="必须包含字符串、数字和特殊字符，且长度大于8">
           </div>
+          <div class="form-group">
+            <label for="superuser" class="col-sm-1"><a style="color: red;">*</a>是否为管理员</label>
+            <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-on" style="width: 86px;">
+              <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;">
+                <input type="checkbox" name="superuser_value"  data-bootstrap-switch="" id="superuser_value">
+              </div>
+              <input type="hidden" name="superuser" value="False">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="superuser" class="col-sm-1"><a style="color: red;">*</a>启用用户</label>
+            <div class="bootstrap-switch bootstrap-switch-wrapper bootstrap-switch-focused bootstrap-switch-animate bootstrap-switch-on" style="width: 86px;">
+              <div class="bootstrap-switch-container" style="width: 126px; margin-left: 0px;">
+                <input type="checkbox" name="userstat_value"   id="userstat_value" checked="" data-bootstrap-switch="">
+              </div>
+              <input type="hidden" name="userstat" value="True">
+
+            </div>
+          </div>
+          
         </div>
         <!-- /.card-body -->
       </div>
       <!-- /.card -->
     </div>
     <div class="col-md-12">
-      <div class="card card-secondary">
+      <div class="card card-secondary collapsed-card">
         <div class="card-header">
           <h3 class="card-title">更多信息</h3>
 
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-              <i class="fas fa-minus"></i>
+              <i class="fas fa-plus"></i>
             </button>
           </div>
         </div>
-        <div class="card-body" style="display: block;">
+        <div class="card-body" style="display: none;">
           <div class="form-group">
             <label for="Email">邮箱地址</label>
             <input type="email" name="email" class="form-control" id="Email" placeholder="使用人的邮箱">
@@ -56,6 +76,39 @@
               <label for="phone">手机号码</label>
               <input type="text" name="phone" class="form-control" id="phone" placeholder="使用人的手机号码">
           </div>
+          <div class="row form-group" style=" align-items: center;">
+            <div class="col-1">
+              <label for="passwd_expireday">密码过期天数</label>
+            </div>
+            <div class="col-1">
+              <input type="number" id="passwd_expireday" class="form-control" min="0" max="999" name="passwd_expireday">
+            </div>
+            <div class="col-2">
+              <a>0~999，0为不过期</a>
+            </div>
+          </div>
+          
+          <!-- IP限制 -->
+          <div class="row form-group" style=" align-items: center;">
+            <div class="col-1">
+              <label class="col-sm-0">限制IP类型</label>
+            </div>
+            <div class="col-1">
+              <select class="form-control">
+                <option>不限制</option>
+                <option>白名单</option>
+                <option>黑名单</option>
+              </select>
+            </div>
+            
+          </div>
+          
+          <div id="ipdiv">
+            
+              
+           
+          </div>
+          <!-- IP限制 -->
         </div>
         <!-- /.card-body -->
       </div>
@@ -72,46 +125,79 @@
 </section>
 {% endblock %}
 {% block script %}
+<script src="{% static 'adminlte/plugins/bootstrap-switch/js/bootstrap-switch.min.js' %}"></script>
 <script>
     $(document).ready(function(){
-        var Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
-        });
-        $("#createUserForm button[type='submit']").click(function(e){
-            e.preventDefault(); // 阻止表单的默认提交行为
-            if (!$("#createUserForm").valid()) {
-                // 如果验证失败，返回false，不提交数据
-                return false;
-            };
-            var formData = $( "#createUserForm" ).serialize();
-            $.ajax({
-                url: "{% url 'manager:usercreate' %}", // 你的请求地址
-                type: "POST", // 请求类型，必须是POST
-                data: formData, // 你的表单数据
-                dataType: "json", // 返回的数据类型，必须是json
-                success: function(data){
-                    if (data.result === 0) {
-                        // 请求成功，显示消息
-                        toastr.success(data.message)
-                        // window.location.href = "{% url 'manager:userlist' %}";
-                        setTimeout(function() {
-                          window.location.href = "{% url 'manager:userindex' %}";
-                        }, 1000);
+      // 初始化switch按钮
+      $("input[data-bootstrap-switch]").each(function(){
+        $(this).bootstrapSwitch('state', $(this).prop('checked'));
+      })
 
-                    } else if (data.result === 1) {
-                        toastr.error(data.message)
-                    }
-                },
-                error: function(){
-                    // 请求失败的回调函数
-                    console.log("Error");
-                }
-            });
-        });
+      var Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000
+      });
+      $("#createUserForm button[type='submit']").click(function(e){
+          e.preventDefault(); // 阻止表单的默认提交行为
+          if (!$("#createUserForm").valid()) {
+              // 如果验证失败，返回false，不提交数据
+              return false;
+          };
+          var formData = $( "#createUserForm" ).serialize();
+          $.ajax({
+              url: "{% url 'manager:usercreate' %}", // 你的请求地址
+              type: "POST", // 请求类型，必须是POST
+              data: formData, // 你的表单数据
+              dataType: "json", // 返回的数据类型，必须是json
+              success: function(data){
+                  if (data.result === 0) {
+                      // 请求成功，显示消息
+                      toastr.success(data.message)
+                      // window.location.href = "{% url 'manager:userlist' %}";
+                      setTimeout(function() {
+                        window.location.href = "{% url 'manager:userlist' %}";
+                      }, 1000);
+
+                  } else if (data.result === 1) {
+                      toastr.error(data.message)
+                  }
+              },
+              error: function(){
+                  // 请求失败的回调函数
+                  console.log("Error");
+              }
+          });
+      });
+        // IP地址限制
+
+         
+    $('select').change(function(){
+      if($(this).val() == '白名单' || $(this).val() == '黑名单'){
+          if($('.iprange').length > 0){
+            return;
+          }
+          $('#ipdiv').append('<div class="form-group row iprange" ><div class="col-3"><input type="text" name="startip" class="form-control" placeholder="开始IP"></div><div class="col-4"><input type="text" class="form-control"name="endip" placeholder="结束IP"></div><div class="col-2"><div class="btn-group"><button type="button" class="btn btn-info addiprange">+</button><button type="button" class="btn btn-info deliprange">-</button></div></div>')
+      }else{
+        $('.iprange').remove()
+      }
+      $('.addiprange').click(function(){
+      console.log('addiprasnge')
+      $('#ipdiv').append('<div class="form-group row iprange" ><div class="col-3"><input type="text" name="startip" class="form-control" placeholder="开始IP"></div><div class="col-4"><input type="text" class="form-control"name="endip" placeholder="结束IP"></div><div class="col-2"><div class="btn-group"><button type="button" class="btn btn-info addiprange">+</button><button type="button" class="btn btn-info deliprange">-</button></div></div>')
     });
+    
+    $('.deliprange').click(function(){
+      $(this).closest('.row').remove();
+    });
+      
+
+    });
+        // IP地址限制结束
+  });
+
+
+
     // <!-- 表单校验 -->
     $.validator.addMethod("letterswithnumber", function(value,element) {
         return this.optional(element) || /^(?=.*[a-z])(?=.*[0-9]).*$/i.test(value);
@@ -173,6 +259,19 @@
           unhighlight: function (element, errorClass, validClass) {
             $(element).removeClass('is-invalid');
           }
+        });
+
+
+        // bootstrap switch事件监听
+        $("#userstat_value").on('switchChange.bootstrapSwitch', function (event,state) {  
+
+          var status = this.checked ? 'True' : 'False';
+          
+            $('input[name="userstat"]').val(status);
+        });
+        $('#superuser_value').on('switchChange.bootstrapSwitch', function (event,state) {  
+          var status = this.checked ? 'True' : 'False';
+          $('input[name="superuser"]').val(status);
         });
     </script>
    

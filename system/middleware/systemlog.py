@@ -59,7 +59,7 @@ class SystemLogMiddleware(MiddlewareMixin):
                 're_method': re_method,     # 请求方法
                 're_ip': re_ip,     # 请求IP
                 're_content': re_content,    # 请求参数
-                're_user': request.user.username    # 操作人(需修改)，网站登录用户
+                're_user': request.user.username if  request.user.username else '未登录的用户'  # 操作人(需修改)，网站登录用户
                 # 're_user': 'AnonymousUser'    # 匿名操作用户测试
             }
         )

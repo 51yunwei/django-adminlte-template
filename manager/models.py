@@ -10,11 +10,15 @@ class UserDB(AbstractUser):
     email = models.EmailField(verbose_name='邮箱', null=True,blank=True)
     create_time = models.DateTimeField('创建时间',auto_now_add=True)
     update_time = models.DateTimeField('更新时间',auto_now=True)
+    passwd_expire_time = models.DateTimeField('密码过期时间',default="9999-09-09 09:09:09")
     class Meta:
         verbose_name = '用户信息'
         verbose_name_plural = verbose_name
     def __str__(self):
         return self.username
+
+
+
 class SystemInfoDB(models.Model):
     system_title = models.CharField(max_length=128,verbose_name="网页title")
     system_name = models.CharField(max_length=128,verbose_name="站点名称")
@@ -40,6 +44,7 @@ class SystemLogDB(models.Model):
     class Meta:
         verbose_name = '系统日志'
         verbose_name_plural = verbose_name
+
 class OperateLogDB(models.Model):
     """操作日志表"""
     Op_result_choices = (
@@ -50,10 +55,11 @@ class OperateLogDB(models.Model):
     create_time = models.DateTimeField('操作时间',auto_now_add=True)
     op_user = models.CharField(max_length=32, verbose_name='操作人')
     remote_ip = models.CharField(max_length=32, verbose_name='操作IP')
-    op_type = models.CharField(max_length=255,verbose_name='操作结果',choices=Op_result_choices)
+    op_type = models.CharField(max_length=255,verbose_name='操作类型')
     result = models.CharField(max_length=11, verbose_name='操作结果')
     op_message = models.TextField(null=True, verbose_name='操作信息')
     
     class Meta:
         verbose_name = '操作日志'
         verbose_name_plural = verbose_name
+    
