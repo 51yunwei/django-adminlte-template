@@ -88,27 +88,6 @@
             </div>
           </div>
           
-          <!-- IP限制 -->
-          <div class="row form-group" style=" align-items: center;">
-            <div class="col-1">
-              <label class="col-sm-0">限制IP类型</label>
-            </div>
-            <div class="col-1">
-              <select class="form-control">
-                <option>不限制</option>
-                <option>白名单</option>
-                <option>黑名单</option>
-              </select>
-            </div>
-            
-          </div>
-          
-          <div id="ipdiv">
-            
-              
-           
-          </div>
-          <!-- IP限制 -->
         </div>
         <!-- /.card-body -->
       </div>
@@ -170,30 +149,7 @@
               }
           });
       });
-        // IP地址限制
 
-         
-    $('select').change(function(){
-      if($(this).val() == '白名单' || $(this).val() == '黑名单'){
-          if($('.iprange').length > 0){
-            return;
-          }
-          $('#ipdiv').append('<div class="form-group row iprange" ><div class="col-3"><input type="text" name="startip" class="form-control" placeholder="开始IP"></div><div class="col-4"><input type="text" class="form-control"name="endip" placeholder="结束IP"></div><div class="col-2"><div class="btn-group"><button type="button" class="btn btn-info addiprange">+</button><button type="button" class="btn btn-info deliprange">-</button></div></div>')
-      }else{
-        $('.iprange').remove()
-      }
-      $('.addiprange').click(function(){
-      console.log('addiprasnge')
-      $('#ipdiv').append('<div class="form-group row iprange" ><div class="col-3"><input type="text" name="startip" class="form-control" placeholder="开始IP"></div><div class="col-4"><input type="text" class="form-control"name="endip" placeholder="结束IP"></div><div class="col-2"><div class="btn-group"><button type="button" class="btn btn-info addiprange">+</button><button type="button" class="btn btn-info deliprange">-</button></div></div>')
-    });
-    
-    $('.deliprange').click(function(){
-      $(this).closest('.row').remove();
-    });
-      
-
-    });
-        // IP地址限制结束
   });
 
 
