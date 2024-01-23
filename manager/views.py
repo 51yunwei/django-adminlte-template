@@ -220,7 +220,8 @@ class CreateUser(View):
             userstat = request.POST.get('userstat',True)
             email = request.POST.get('email','')
             phone = request.POST.get('phone','')
-            
+            if not all([username,password,confirmpassword]):
+                raise ValueError("参数不符合要求")
             data= {
                 "username":username,
                 "password":password,
